@@ -1,0 +1,368 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Student Registration</title>
+    <link rel="stylesheet" href="{% static 'css/form.css' %}">
+</head>
+<body>
+    <div class="nav-buttons">
+        <a id="add-student-btn" class="active">Add Student</a>
+        <div class="divider"></div>
+        <a id="register-student-btn">Register Student</a>
+    </div>
+    <div id="main-container">
+        <div id="registration-container">
+            <h1>Student Registration Form</h1>
+            <form id="add-student-form" class="active">
+                <div class="name-group">
+                    <div>
+                        <label for="first-name">First Name:</label>
+                        <input type="text" id="first-name" name="first-name" placeholder="Enter first name" required>
+                    </div>
+                    <div>
+                        <label for="last-name">Last Name:</label>
+                        <input type="text" id="last-name" name="last-name" placeholder="Enter last name" required>
+                    </div>
+                </div>
+                <div class="name-group">
+                    <div>
+                        <label for="id_number">Identification Number:</label>
+                        <input type="text" id="id_number" name="id_number" placeholder="Enter identification number" required>
+                    </div>
+                    <div>
+                        <label for="registration-date">Registration Date:</label>
+                        <input type="date" id="registration-date" name="registration-date" required>
+                    </div>
+                </div>
+                <label for="department">Department:</label>
+                <input type="text" id="department" name="department" placeholder="Enter department" required>
+                <label for="gender">Gender:</label>
+                <div class="radio-group">
+                    <input type="radio" id="female" name="gender" value="female" required>
+                    <label for="female">Female</label>
+                    <input type="radio" id="male" name="gender" value="male" required>
+                    <label for="male">Male</label>
+                </div>
+                <label for="dob">Date of Birth:</label>
+                <div class="dob-group">
+                    <input type="number" name="day" placeholder="Day" min="1" max="31" required>
+                    <select name="month" required>
+                        <option value="" disabled selected>Month</option>
+                        <option value="Jan">January</option>
+                        <option value="Feb">February</option>
+                        <option value="Mar">March</option>
+                        <option value="Apr">April</option>
+                        <option value="May">May</option>
+                        <option value="Jun">June</option>
+                        <option value="Jul">July</option>
+                        <option value="Aug">August</option>
+                        <option value="Sep">September</option>
+                        <option value="Oct">October</option>
+                        <option value="Nov">November</option>
+                        <option value="Dec">December</option>
+                    </select>
+                    <input type="number" name="year" placeholder="Year" min="1991" max="2005" required>
+                </div>
+                <div class="name-group">
+                    <div>
+                        <label for="email">Email Address:</label>
+                        <input type="email" id="email" name="email" placeholder="Enter email" required>
+                    </div>
+                    <div>
+                        <label for="mobile">Mobile Number:</label>
+                        <input type="tel" id="mobile" name="mobile" placeholder="Enter mobile number" pattern="[0-9]{10}" required>
+                    </div>
+                </div>
+                <div class="city-country-group">
+                    <div>
+                        <label for="city">City:</label>
+                        <input type="text" id="city" name="city" placeholder="Enter city" required>
+                    </div>
+                    <div>
+                        <label for="country">Country:</label>
+                        <input type="text" id="country" name="country" placeholder="Enter country" required>
+                    </div>
+                </div>
+                <br>
+                <div class="city-country-group">
+                    <button type="submit">Submit</button>
+                    <button type="reset">Reset</button>
+                </div>
+            </form>
+
+            <form id="register-student-form">
+                <!-- Register Student Form with Search Functionality -->
+                <label for="student-search">Search for Student:</label>
+                <input type="text" id="student-search" name="student-search" placeholder="Enter student name or ID" required>
+                <div class="search-results" id="search-results"></div>
+            </form>
+        </div>
+
+        <div id="course-container">
+            <h1>Course Information</h1>
+            <div class="nav-buttons">
+                <a id="courses" class="active">Courses</a>
+                <div class="divider"></div>
+                <a id="add-courses">Add Courses</a>
+            </div>
+            <br>
+            <div id="course-details" class="active">
+                <table class="course-table">
+                    <thead>
+                        <tr>
+                            <th>Course ID</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CS101</td>
+                            <td>Introduction to Computer Science</td>
+                            <td>Completed</td>
+                            <td>A</td>
+                        </tr>
+                        <tr>
+                            <td>CS102</td>
+                            <td>Data Structures</td>
+                            <td>Ongoing</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>CS103</td>
+                            <td>Algorithms</td>
+                            <td>Ongoing</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <form id="add-course-form">
+                <div class='city-country-group'>
+                    <div>
+                        <label for="course-year">Year:</label>
+                        <select id="course-year" name="course-year" required>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="course-semester">Semester:</label>
+                        <select id="course-semester" name="course-semester" required>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="class">Class:</label>
+                        <select id="class" name="class" required>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <br>
+                </div>
+                <br>
+                <div id="new-courses-container">
+                    <h2>Available Courses</h2>
+                    <ul id="courses-list">
+                        <!-- Courses will be dynamically inserted here -->
+                    </ul>
+                </div>
+                <div class="nav-bu-container">
+                    <div class="nav-bu">
+                        <a id="register-courses-btn" href="#">Register Courses</a>
+                    </div>
+                </div>
+                
+            </form>
+            
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('click', function(event) {
+            if (event.target.id === 'more-info-btn') {
+                event.preventDefault(); // Prevent default action
+                const courseContainer = document.getElementById('course-container');
+                const courseDetails = document.getElementById('course-details');
+
+                courseContainer.style.display = courseContainer.style.display === 'none' ? 'block' : 'none';
+            }
+        });
+
+        // Switch between forms
+        document.getElementById('add-student-btn').addEventListener('click', function() {
+            document.getElementById('add-student-form').classList.add('active');
+            document.getElementById('register-student-form').classList.remove('active');
+            this.classList.add('active');
+            document.getElementById('register-student-btn').classList.remove('active');
+        });
+
+        document.getElementById('register-student-btn').addEventListener('click', function() {
+            document.getElementById('register-student-form').classList.add('active');
+            document.getElementById('add-student-form').classList.remove('active');
+            this.classList.add('active');
+            document.getElementById('add-student-btn').classList.remove('active');
+        });
+
+        // Toggle between course details and add course form
+        document.getElementById('courses').addEventListener('click', function() {
+            document.getElementById('course-details').style.display = 'block';
+            document.getElementById('add-course-form').style.display = 'none';
+            this.classList.add('active');
+            document.getElementById('add-courses').classList.remove('active');
+        });
+
+        document.getElementById('add-courses').addEventListener('click', function() {
+            document.getElementById('add-course-form').style.display = 'block';
+            document.getElementById('course-details').style.display = 'none';
+            this.classList.add('active');
+            document.getElementById('courses').classList.remove('active');
+        });
+
+        // Search functionality (simulated for demonstration)
+        document.getElementById('student-search').addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const resultsContainer = document.getElementById('search-results');
+            
+            // Simulate search results
+            let results = '';
+
+            if (query === 'john doe') {
+                results = `
+                    <p>Student Found:</p>
+                    <div class="student-info">
+                        <p><strong>Name:</strong> John Doe</p>
+                        <p><strong>ID:</strong> 123456</p>
+                        <p><strong>Department:</strong> Software</p>
+                        <p><strong>DOB:</strong> 01/01/2000</p>
+                        <p><strong>Registration Date:</strong> 01/01/2000</p>
+                        <p><strong>Email:</strong> johndoe@example.com</p>
+                        <p><strong>Gender:</strong> Male</p>
+                        <p><strong>Address:</strong> 123 Main St, City, Country</p>
+                    </div>
+                    <div class="more">
+                        <button type="button" id="more-info-btn">Course</button>
+                    </div>
+                `;
+            } else if (query !== '') {
+                results = `<p>No student found with the name or ID "${query}".</p>`;
+            }
+
+            resultsContainer.innerHTML = results;
+        });
+
+        document.getElementById('student-search').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent form submission on Enter key
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const courses = [
+                { id: 'CS104', name: 'Computer Networks' },
+                { id: 'CS105', name: 'Database Systems' },
+                { id: 'CS106', name: 'Operating Systems' },
+                { id: 'CS107', name: 'Software Engineering' }
+            ];
+            
+            const coursesList = document.getElementById('courses-list');
+            
+            // Create and add course items to the list
+            courses.forEach(course => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span>${course.name} (${course.id})</span>
+                    <button class="toggle-btn" data-id="${course.id}" data-state="plus">+</button>
+                `;
+                coursesList.appendChild(listItem);
+            });
+            
+            // Add event listener for toggling
+            coursesList.addEventListener('click', function(event) {
+                if (event.target.classList.contains('toggle-btn')) {
+                    event.preventDefault(); // Prevent default action
+                    const button = event.target;
+                    const courseId = button.getAttribute('data-id');
+                    const isExpanded = button.getAttribute('data-state') === 'minus';
+                    
+                    // Toggle the button state and icon
+                    button.textContent = isExpanded ? '+' : '-';
+                    button.setAttribute('data-state', isExpanded ? 'plus' : 'minus');
+            
+                    // Show or hide the course details
+                    const courseDetails = document.getElementById(`course-details-${courseId}`);
+                    if (isExpanded) {
+                        if (courseDetails) {
+                            courseDetails.remove();
+                        }
+                    } else {
+                        const newDetails = document.createElement('div');
+                        newDetails.id = `course-details-${courseId}`;
+                        newDetails.innerHTML = `
+                            <div class="course-detail">
+                                <p><strong>Course ID:</strong> ${courseId}</p>
+                                <p><strong>Course Name:</strong> ${courses.find(course => course.id === courseId).name}</p>
+                                <p><strong>Description:</strong> Detailed information about ${courseId}.</p>
+                            </div>
+                        `;
+                        button.parentElement.insertAdjacentElement('afterend', newDetails);
+                    }
+                }
+            });
+        
+            // Register selected courses
+            document.getElementById('register-courses-btn').addEventListener('click', function() {
+                const selectedCourses = [];
+                const toggleButtons = document.querySelectorAll('#courses-list .toggle-btn');
+        
+                toggleButtons.forEach(button => {
+                    if (button.getAttribute('data-state') === 'minus') {
+                        selectedCourses.push(button.getAttribute('data-id'));
+                    }
+                });
+        
+                if (selectedCourses.length > 0) {
+                    // Perform the registration action
+                    // For example, log to console or send an AJAX request
+                    console.log('Selected courses:', selectedCourses);
+        
+                    // Here you could make an AJAX request to submit the selected courses
+                    // Example:
+                    // fetch('/register_courses/', {
+                    //     method: 'POST',
+                    //     headers: {
+                    //         'Content-Type': 'application/json',
+                    //         'X-CSRFToken': getCsrfToken()
+                    //     },
+                    //     body: JSON.stringify({ courses: selectedCourses })
+                    // }).then(response => response.json())
+                    // .then(data => {
+                    //     console.log('Success:', data);
+                    // }).catch(error => {
+                    //     console.error('Error:', error);
+                    // });
+                } else {
+                    alert('No courses selected.');
+                }
+            });
+        
+            // Example function to get CSRF token (if using Django or similar frameworks)
+            // function getCsrfToken() {
+            //     return document.querySelector('[name=csrfmiddlewaretoken]').value;
+            // }
+        });
+            </script>
+</body>
+</html>

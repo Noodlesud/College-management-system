@@ -1,0 +1,19 @@
+{% for course in filtered_courses %}
+<tr>
+    <td>{{ course.code }}</td>
+    <td>{{ course.name }}</td>
+    <td>{{ course.year }}</td>
+    <td>{{ course.semester }}</td>
+    <td>
+        {% if course.code in enrolled_courses %}
+            Enrolled
+        {% else %}
+            <button class="add-course-btn" data-course-code="{{ course.code }}" data-student-id="{{ student.id_number }}">Add Course</button>
+        {% endif %}
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="5">No courses available.</td>
+</tr>
+{% endfor %}

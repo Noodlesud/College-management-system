@@ -1,0 +1,258 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Student Registration</title>
+    <style>
+        .text-button {
+            padding: 0;
+            font-size: 16px;
+            color: #000000;
+            background-color: #ffffff;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .text-button:hover {
+            background-color: lightgrey;
+            text-decoration: underline;
+        }
+    
+        .department-container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 20%;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        .course-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .course-table th, .course-table td {
+            padding: 10px;
+        }
+
+        .course-table thead {
+            background-color: #b8b6b6;
+        }
+
+        .course-table tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+
+        .center {
+            text-align: center;
+        }
+        
+        .course-table td {
+            text-align: left;
+        }
+
+        .course-table th {
+            padding-bottom: 20px;
+            text-align: center;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'css/head.css' %}">
+</head>
+
+<body>
+    <div id="department-container" class="department-container">
+        <div>
+            <p>Name: Department Head Name</p>
+        </div>
+        <div>
+            <p>Department: Department Name</p>
+        </div>
+    </div>
+
+    <div id="main-container">
+        <div id="registration-container">
+            <div class="more">
+                <a href="#" class="text-button" id="course-assign-btn">Course Assign</a>
+            </div> 
+            <div class="more">
+                <a href="#" class="text-button" id="course-request-btn">Course result request</a>
+            </div> 
+        </div>
+
+        <div id="course-container">
+            <h1>Course Information</h1>
+            <div id="course-details" class="active">
+                <table class="course-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Course</th>
+                            <th>Year</th>
+                            <th>Semester</th>
+                            <th>Class</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-list">
+                        <!-- Student rows will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="request-container">
+            <h1>Course Result Requests</h1>
+            <table class="course-table">
+                <thead>
+                    <tr>
+                        <th>Teacher Name</th>
+                        <th>Course Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="request-list">
+                    <!-- Request rows will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Fetch teacher names from the Django context
+        const teachers = {{ teachers|safe }};
+        
+        const studentList = document.getElementById('student-list');
+        const courses = [
+            { id: 'CS104', name: 'Computer Networks' },
+            { id: 'CS105', name: 'Database Systems' },
+        ];
+
+        // Populate course assign table with teacher names
+        teachers.forEach(teacher => {
+            const row = document.createElement('tr');
+
+            const idCell = document.createElement('td');
+            idCell.textContent = teacher.id;
+
+            const nameCell = document.createElement('td');
+            nameCell.textContent = teacher.name;
+
+            const courseCell = document.createElement('td');
+            const courseSelect = document.createElement('select');
+            courseSelect.name = 'course';
+            courses.forEach(course => {
+                const option = document.createElement('option');
+                option.value = course.id;
+                option.textContent = course.name;
+                courseSelect.appendChild(option);
+            });
+            courseCell.appendChild(courseSelect);
+
+            const yearCell = document.createElement('td');
+            const yearSelect = document.createElement('select');
+            yearSelect.name = 'year';
+            for (let i = 1; i <= 5; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+            yearCell.appendChild(yearSelect);
+
+            const semesterCell = document.createElement('td');
+            const semesterSelect = document.createElement('select');
+            semesterSelect.name = 'semester';
+            for (let i = 1; i <= 2; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                semesterSelect.appendChild(option);
+            }
+            semesterCell.appendChild(semesterSelect);
+
+            const classCell = document.createElement('td');
+            const classSelect = document.createElement('select');
+            classSelect.name = 'class';
+            ['A', 'B', 'C', 'D'].forEach(cls => {
+                const option = document.createElement('option');
+                option.value = cls;
+                option.textContent = cls;
+                classSelect.appendChild(option);
+            });
+            classCell.appendChild(classSelect);
+
+            const statusCell = document.createElement('td');
+            statusCell.textContent = 'Not Assigned';
+            statusCell.className = 'status-cell';
+
+            row.appendChild(idCell);
+            row.appendChild(nameCell);
+            row.appendChild(courseCell);
+            row.appendChild(yearCell);
+            row.appendChild(semesterCell);
+            row.appendChild(classCell);
+            row.appendChild(statusCell);
+
+            studentList.appendChild(row);
+        });
+
+        document.getElementById('course-assign-btn').addEventListener('click', function() {
+            document.getElementById('course-container').style.display = 'block';
+            document.getElementById('request-container').style.display = 'none';
+        });
+
+        document.getElementById('course-request-btn').addEventListener('click', function() {
+            document.getElementById('course-container').style.display = 'none';
+            document.getElementById('request-container').style.display = 'block';
+
+            const requestList = document.getElementById('request-list');
+
+            // Example teacher requests
+            const requests = [
+                {teacherName: 'Dr. John Doe', courseName: 'Computer Networks'},
+                {teacherName: 'Dr. Jane Smith', courseName: 'Database Systems'},
+                {teacherName: 'Dr. Alice Johnson', courseName: 'Operating Systems'}
+            ];
+
+            // Clear any existing rows
+            requestList.innerHTML = '';
+
+            // Add requests to the table
+            requests.forEach(request => {
+                const row = document.createElement('tr');
+
+                const teacherCell = document.createElement('td');
+                teacherCell.textContent = request.teacherName;
+
+                const courseCell = document.createElement('td');
+                courseCell.textContent = request.courseName;
+
+                const actionCell = document.createElement('td');
+                const allowLink = document.createElement('a');
+                allowLink.href = '#';
+                allowLink.textContent = 'Allow';
+                allowLink.className = 'text-button';
+                actionCell.appendChild(allowLink);
+
+                row.appendChild(teacherCell);
+                row.appendChild(courseCell);
+                row.appendChild(actionCell);
+
+                requestList.appendChild(row);
+            });
+        });
+    </script>
+</body>
+</html>

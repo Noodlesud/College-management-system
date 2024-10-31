@@ -1,0 +1,242 @@
+{% extends 'Dep_head/department_head_dashboard.html' %}
+
+{% block content %}
+<style>
+    .teacher-detail-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+    .close-icon {
+        float: right;
+        font-size: 30px;
+        cursor: pointer;
+        text-decoration: none;
+        color: #333;
+        transition: color 0.3s ease;
+    }
+    .close-icon:hover {
+        color: #ff0000;
+    }
+    .teacher-info, .courses-container {
+        margin-bottom: 30px;
+    }
+    .course-list {
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+    }
+    .filter-container {
+        display: grid;
+        gap: 20px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+    .year-semester {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+    .class {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+    .filter-container label {
+        font-size: 16px;
+    }
+    .filter-container select, .filter-container input {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .course-list table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .course-list th, .course-list td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .course-list tr:hover {
+        background-color: #f9f9f9;
+    }
+    .assign-course-btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+    .assign-course-btn:hover {
+        background-color: #218838;
+    }
+    #courseResults {
+        margin-top: 20px;
+    }
+    .course-item {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+    .course-item.selected {
+        background-color: #e6f3ff;
+        border-color: #007bff;
+    }
+    .select-course {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="teacher-detail-container">
+   <a href="{% url 'assign_course' %}" class="close-icon">&times;</a>  
+    <br>
+    <h1>Teacher Details</h1>
+
+    <div class="teacher-info">
+        <ul>
+            <li><strong>ID:</strong> {{ teacher.id_number }}</li>
+            <li><strong>Full Name:</strong> {{ teacher.first_name }} {{ teacher.last_name }}</li>
+            <li><strong>Department:</strong> {{ teacher.department.name }}</li>
+        </ul>
+    </div>
+
+    <div class="courses-container">
+        <h2>Assign Course</h2>
+        <form id="courseSearchForm" method="GET" action="{% url 'search_courses' %}">
+            <div class="filter-container">
+                <input type="text" id="courseSearch" name="q" placeholder="Search by course name or code">
+                
+                <div class="year-semester">
+                <div class="form-group">
+                    <label for="year">Year:</label>
+                    <select id="year" name="year">
+                        <option value="" disabled selected>Choose Year to assign teacher to</option>
+                        <option value="1" {% if teacher.year == "1" %}selected{% endif %}>1</option>
+                        <option value="2" {% if teacher.year == "2" %}selected{% endif %}>2</option>
+                        <option value="3" {% if teacher.year == "3" %}selected{% endif %}>3</option>
+                        <option value="4" {% if teacher.year == "4" %}selected{% endif %}>4</option>
+                        <option value="5" {% if teacher.year == "5" %}selected{% endif %}>5</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="semester">Semester:</label>
+                    <select id="semester" name="semester">
+                        <option value="" disabled selected>Choose Semester to assign teacher to</option>
+                        <option value="1" {% if teacher.semester == "1" %}selected{% endif %}>1</option>
+                        <option value="2" {% if teacher.semester == "2" %}selected{% endif %}>2</option>
+                    </select>
+                </div>
+                </div>
+                <button type="submit" class="assign-course-btn">Search</button>
+                <div class="class">
+                <div class="form-group">
+                    <label for="class">Class:</label>
+                    <select id="class" name="class">
+                        <option value="" disabled selected>Choose class to register student to</option>
+                        <option value="A" {% if teacher_class == "A" %}selected{% endif %}>A</option>
+                        <option value="B" {% if teacher_class == "B" %}selected{% endif %}>B</option>
+                        <option value="C" {% if teacher_class == "C" %}selected{% endif %}>C</option>
+                        <option value="D" {% if teacher_class == "D" %}selected{% endif %}>D</option>
+                    </select>
+                </div>
+                </div>
+        </form>
+
+        <div id="courseResults">
+            <!-- Course results will be dynamically populated here -->
+        </div>
+
+        <form id="assignCourseForm" method="POST" action="{% url 'assignment' %}">
+            {% csrf_token %}
+            {% for course in ass_filtered_courses %}
+            <input type="hidden" id="selectedCourse" name="course_code" value="">
+            <input type="hidden" name="teacher_id" value="{{ teacher.id_number }}">
+            <button type="submit" class="assign-course-btn" disabled >Assign Selected Course</button>
+            {% empty %}
+            <p>No courses available</p>
+            {% endfor %}
+        
+    
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const courseSearchForm = document.getElementById('courseSearchForm');
+    const courseResults = document.getElementById('courseResults');
+    const assignCourseForm = document.getElementById('assignCourseForm');
+    const selectedCourseInput = document.getElementById('selectedCourse');
+    const assignButton = assignCourseForm.querySelector('button[type="submit"]');
+
+    courseSearchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(courseSearchForm);
+        const searchParams = new URLSearchParams(formData);
+
+        fetch(`{% url 'search_courses' %}?${searchParams.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                courseResults.innerHTML = '';
+                data.courses.forEach(course => {
+                    const courseElement = document.createElement('div');
+                    courseElement.classList.add('course-item');
+                    courseElement.innerHTML = `
+                        <h3>${course.code}: ${course.name}</h3>
+                        <p>Year: ${course.year}, Semester: ${course.semester}</p>
+                        <button class="select-course" data-code="${course.code}">Select</button>
+                    `;
+                    courseResults.appendChild(courseElement);
+                });
+            });
+    });
+
+    courseResults.addEventListener('click', function(e) {
+        if (e.target.classList.contains('select-course')) {
+            const courseCode = e.target.getAttribute('data-code');
+            selectedCourseInput.value = courseCode;
+            assignButton.disabled = false;
+            
+            // Highlight selected course
+            document.querySelectorAll('.course-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            e.target.closest('.course-item').classList.add('selected');
+        }
+    });
+
+    assignCourseForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(assignCourseForm);
+
+        fetch("{% url 'assignment' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            // Optionally, refresh the page or update the UI
+        });
+    });
+});
+</script>
+{% endblock %}

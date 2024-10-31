@@ -1,0 +1,210 @@
+{% extends 'student/student_dashboard.html' %}
+
+{% block content %}
+<style>
+    .student-detail-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 10px;
+        font-family: Arial, sans-serif;
+    }
+
+    .courses-container {
+        margin-bottom: 30px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        font-size: 18px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+        color: #333;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .dropdown-icon {
+        cursor: pointer;
+        font-size: 18px;
+        margin-left: 10px;
+    }
+    #assessment-menu {
+        background-color: white; /* Add a background color */
+
+        display: none; /* Ensure this is set to block when shown */
+    }
+    
+
+    .assessment-menu {
+        display: none;
+        position: absolute;
+        background-color: white;
+        border: 1px solid #ddd;
+        z-index: 2000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px; /* Rounded corners */
+    }
+    
+    .assessment-menu table {
+        width: 100%; /* Table takes full width of the dropdown */
+        border-collapse: collapse; /* Remove gaps between table cells */
+    }
+    
+    .assessment-menu th, .assessment-menu td {
+       
+        text-align: left;
+        border-bottom: 1px solid #ddd; /* Add bottom border to table cells */
+    }
+    
+    .assessment-menu th {
+        background-color: #f2f2f2; /* Header background color */
+    }
+
+    .assessment-item {
+        margin-bottom: 5px;
+    }
+</style>
+
+<div class="student-detail-container">
+    <div class="courses-container">
+        <h2>Current Courses</h2>
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course Name</th>
+                        <th>Year</th>
+                        <th>Semester</th>
+                        <th>Credit</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td>{{ course.code }}</td>
+                        <td>{{ course.name }}</td>
+                        <td>{{ course.year }}</td>
+                        <td>{{ course.semester }}</td>
+                        <td>{{ course.credits }}</td>
+                        <td>
+                            {% for assignment in student_results %}
+                                {% if assignment.course_code == course.code %}
+                                    {{ assignment.result }}
+                                    {% if assignment.assessment %}
+                                        <span class="dropdown-icon" onclick="toggleDropdown(event, '{{ assignment.assessment }}')">&#9662;</span>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">No courses available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="assessment-menu" class="assessment-menu"></div>
+
+<script>
+        function toggleDropdown(event, assessment_holders) {
+            event.stopPropagation(); // Stop the event from bubbling up
+    
+            const dropdownMenu = document.getElementById('assessment-menu');
+            dropdownMenu.innerHTML = ''; // Clear previous content
+    
+            // Set dropdown position and display
+            dropdownMenu.style.left = '50%'; // Center horizontally
+            dropdownMenu.style.top = `${event.pageY + 20}px`; // Vertical offset
+            dropdownMenu.style.transform = 'translateX(-50%)'; // Center the dropdown
+            dropdownMenu.style.display = 'block'; // Ensure it's visible
+    
+            const table = document.createElement('table');
+            table.style.width = '300px'; // Set table width
+            table.style.borderCollapse = 'collapse';
+    
+            const thead = document.createElement('thead');
+            thead.innerHTML = '<tr><th>Assessment</th><th>Result</th></tr>';
+            table.appendChild(thead);
+    
+            const tbody = document.createElement('tbody');
+    
+            let totalScore = 0; // Initialize total score
+    
+            if (assessment_holders) {
+                const assessmentsArray = assessment_holders.split(';');
+                assessmentsArray.forEach(assessment => {
+                    const [name, details] = assessment.split('=');
+                    const [assessmentName, score] = name.trim().split(':');
+                    const scoreValue = parseFloat(details.trim()); // Parse score from details
+    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${assessmentName.trim()} ${score.trim()} %</td><td>${scoreValue}</td>`;
+                    tbody.appendChild(row);
+    
+                    totalScore += scoreValue; // Add scoreValue to total score
+                });
+            } else {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="2">No assessments available</td>'; // Feedback if no data
+                tbody.appendChild(row);
+            }
+    
+            // Calculate and display total score and grade
+            const totalRow = document.createElement('tr');
+            totalRow.innerHTML = `<td><strong>Total Score</strong></td><td><strong>${totalScore}</strong></td>`;
+            tbody.appendChild(totalRow);
+    
+            const grade = calculateGrade(totalScore);
+            const gradeRow = document.createElement('tr');
+            gradeRow.innerHTML = `<td><strong>Grade</strong></td><td><strong>${grade}</strong></td>`;
+            tbody.appendChild(gradeRow);
+    
+            table.appendChild(tbody);
+            dropdownMenu.appendChild(table);
+    
+            // Close the dropdown when clicking outside
+            document.addEventListener('click', function closeMenu(event) {
+                if (!dropdownMenu.contains(event.target)) {
+                    dropdownMenu.style.display = 'none';
+                    document.removeEventListener('click', closeMenu);
+                }
+            });
+        }
+    
+        function calculateGrade(totalScore) {
+            const percentage = totalScore;
+    
+            if (percentage >= 90) return 'A+';
+            if (percentage >= 85) return 'A';
+            if (percentage >= 80) return 'A-';
+            if (percentage >= 75) return 'B+';
+            if (percentage >= 70) return 'B';
+            if (percentage >= 65) return 'B-';
+            if (percentage >= 60) return 'C+';
+            if (percentage >= 55) return 'C';
+            return 'F'; // You can customize this as needed
+        }
+            </script>
+{% endblock %}

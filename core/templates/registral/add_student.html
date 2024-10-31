@@ -1,0 +1,118 @@
+{% extends 'registral/registrar_dashboard.html' %}
+
+{% block content %}
+<div>
+    <h1>Add Student</h1>
+    <form method="POST" action="{% url 'add_student_view' %}">
+        {% csrf_token %}
+        <div class="name-group">
+            <div>
+                <label for="first-name">First Name:</label>
+                <input type="text" id="first-name" name="first-name" placeholder="Enter first name" required>
+            </div>
+            <div>
+                <label for="last-name">Last Name:</label>
+                <input type="text" id="last-name" name="last-name" placeholder="Enter last name" required>
+            </div>
+        </div>
+        <div class="name-group">
+            <div>
+                <label for="id_number">Identification Number:</label>
+                <input type="text" id="id_number" name="id_number" placeholder="Enter identification number" required>
+            </div>
+            <div>
+                <label for="registration-date">Registration Date:</label>
+                <input type="date" id="registration-date" name="registration-date" required>
+            </div>
+        </div>
+        <label for="department">Department:</label>
+        <select id="department" name="department" required>
+            <option value="" disabled selected>Select Department</option>
+            {% for department in department %}
+                <option value="{{ department.id }}">{{ department.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="gender">Gender:</label>
+        <div class="radio-group">
+            <input type="radio" id="female" name="gender" value="female" required>
+            <label for="female">Female</label>
+            <input type="radio" id="male" name="gender" value="male" required>
+            <label for="male">Male</label>
+        </div>
+        <label for="dob">Date of Birth:</label>
+        <div class="dob-group">
+            <input type="number" name="day" placeholder="Day" min="1" max="31" required>
+            <select name="month" required>
+                <option value="" disabled selected>Month</option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+            <input type="number" name="year" placeholder="Year" min="1991" max="2005" required>
+        </div>
+        <div class="name-group">
+            <div>
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" placeholder="Enter email" required>
+            </div>
+            <div>
+                <label for="mobile">Mobile Number:</label>
+                <input type="tel" id="mobile" name="mobile" placeholder="Enter mobile number" pattern="[0-9]{10}" required>
+            </div>
+        </div>
+        <div class="city-country-group">
+            <div>
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city" placeholder="Enter city" required>
+            </div>
+            <div>
+                <label for="country">Country:</label>
+                <input type="text" id="country" name="country" placeholder="Enter country" required>
+            </div>
+        </div>
+        <br>
+        <div class="city-country-group">
+            <button type="submit">Submit</button>
+            <button type="reset">Reset</button>
+        </div>
+    </form>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();  // Prevent the default form submission
+
+            const formData = new FormData(form);
+
+            fetch('{% url "add_student_view" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'error') {
+                    alert(data.message);  // Show alert for errors
+                } else {
+                    alert(data.message);  // Show alert for success
+                    form.reset();  // Reset the form if successful
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+
+{% endblock %}

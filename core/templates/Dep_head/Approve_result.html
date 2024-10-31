@@ -1,0 +1,527 @@
+{% extends 'Dep_head/department_head_dashboard.html' %}
+
+{% block content %}
+
+<style>
+    #edit-request-button {
+        background-color: white;
+        color: black;
+        border: 2px solid #333;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    #save-button {
+        background-color: #4CAF50; /* Green */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+    #send-button {
+        background-color: white;
+        color: black;
+        border: 2px solid #333;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    /* Hover effects */
+    #edit-request-button:hover {
+        background-color: #2c3e50; /* Blue */
+        color: white; /* Change text color to white on hover */
+    }
+
+    #send-button:hover {
+        background-color: #2c3e50; /* Blue */
+        color: white; /* Change text color to white on hover */
+    }
+    
+    /* Styling for dropdown table */
+    /* Remove position: relative from .dropdown-table-container to ensure it behaves inline */
+    .dropdown-row {
+        display: none;
+    }
+    
+    table .dropdown-row td {
+        padding: 0;
+        border-top: none;
+    }
+    
+    .dropdown-table-container {
+        padding: 0;
+        border: none;
+    }
+    
+.dropdown-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.dropdown-table th, .dropdown-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 16px;
+}
+
+.dropdown-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+    /* Down arrow icon styling */
+.dropdown-icon {
+    cursor: pointer;
+    font-size: 18px;
+    margin-left: 10px;
+}
+
+/* Hidden dropdown menu styling */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+.dropdown-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown-menu ul li {
+    padding: 8px 0;
+}
+
+.dropdown-menu ul li a {
+    text-decoration: none;
+    color: #333;
+}
+
+.dropdown-menu ul li a:hover {
+    text-decoration: underline;
+}
+
+    /* Styling for the table and container */
+    #assign-course-form-container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        position: relative; /* To position the dropdown correctly */
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        font-size: 18px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+        color: #333;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* Styling for the headers */
+    h1, h2 {
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    /* Styling for the form input */
+    #assign-course-form input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .result-container {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .result-box {
+        flex: 1;
+        background: #ffffff;
+        border-radius: var(--border-radius);
+        padding: 15px;
+        box-shadow: var(--box-shadow);
+        min-height: 100px;
+    }
+
+    .result-box h3 {
+        margin-top: 0;
+        color: var(--primary-color);
+    }
+
+    .btn.btn-primary {
+        background-color: #28a745; /* Green background */
+        color: white; /* White text */
+        border: none; /* Remove border */
+        padding: 10px 15px; /* Padding around the button */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Pointer cursor on hover */
+        font-size: 16px; /* Font size */
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    }
+
+    .btn.btn-primary:hover {
+        background-color: #218838; /* Darker green on hover */
+    }
+
+    #assignButton {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+   
+    #search-results {
+        position: absolute;
+        top: 100%; /* Position right below the search input */
+        left: 0;
+        width: 100%;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none; /* Initially hidden */
+    }
+
+    #search-results th, #search-results td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #search-results tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* Styling for links in search results and table */
+    a {
+        color: #000; /* Set link color to black */
+        text-decoration: none; /* Remove underline from links */
+        font-size: 18px; /* Increase font size for better readability */
+    }
+
+    a:hover {
+        text-decoration: none; /* Add underline on hover for better visibility */
+    } .dropdown-row {
+        display: none;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown-table-container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+        position: relative;
+    }
+</style>
+
+<div id="assign-course-form-container">
+    <h1>Course Approval</h1>
+</div>
+
+<!-- Teacher Information Table -->
+<div class="result-container">
+    <div class="result-box" id="teacherResult">
+        <h3>Teacher</h3>
+        <table id="teacher-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Course code</th>
+                    <th>Section</th>
+                    <th>Assigned Course</th>
+                </tr>
+            </thead>
+            <tbody id="teachers-table-body">
+    {% for teacher in approval %}
+    <tr>
+        <td>{{ teacher.teacher_id }}</td>
+        <td>
+            {% with course_assigned=False %}
+                {% for assignment in teachers %}
+                    {% if assignment.id_number == teacher.teacher_id %}
+                    {{ assignment.first_name }} {{ assignment.last_name }}
+                    {% with course_assigned=True %}{% endwith %}
+                    {% endif %}
+                {% endfor %}
+            {% endwith %}
+        </td>
+        <td>{{ teacher.course_code }}</td>
+        <td>{{ teacher.assigned_class }}</td>
+        <td>
+            <span class="dropdown-icon" onclick="toggleDropdown('{{ teacher.teacher_id }}', '{{ teacher.course_code }}', '{{ teacher.assigned_class }}')">&#9662;</span>
+        </td>
+    </tr>
+    <tr id="dropdown-row-{{ teacher.teacher_id }}" class="dropdown-row">
+        {% include 'Dep_head/request_table.html' %}
+
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+    </div>
+</div>
+<script>
+function toggleDropdown(teacher_id, course_code, assigned_class) {
+    const dropdownRow = document.getElementById(`dropdown-row-${teacher_id}`);
+    const dropdownTable = document.getElementById(`dropdown-table-${teacher_id}`);
+
+    if (dropdownRow.style.display === "table-row") {
+        dropdownRow.style.display = "none";
+    } else {
+        dropdownRow.style.display = "table-row";
+
+        fetch(`/get_assessments_approval/?course_code=${course_code}&assigned_class=${assigned_class}&teacher_id=${teacher_id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.assessment) {
+                    const assessmentDataArray = data.assessment.assessment_data;
+                    const status = data.assessment.status;
+                    const edit_approval_status = data.assessment.edit_approval_status;
+
+                    let buttonHTML = '';
+
+                    if (edit_approval_status === 'edit_request') {
+                        buttonHTML = `
+                            <button id="save-button-${teacher_id}" style="padding: 10px 20px; margin-right: 10px;
+                              background-color: #4CAF50; /* Green */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;">Approve Edit</button>
+                            <button id="send-button-${teacher_id}" style=" color: black;
+        border: 2px solid #333;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s, color 0.3s;
+        padding: 10px 20px;">Approve Grade</button>
+                        `;
+                    } else {
+                        buttonHTML = `
+                            <button id="send-button-${teacher_id}" style=" background-color: white;
+        color: black;
+        border: 2px solid #333;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s, color 0.3s;
+        padding: 10px 20px;">Approve Grade</button>
+                        `;
+                    }
+
+                    let html = `
+                        <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                            ${buttonHTML}
+                        </div>
+                        <h2>Assessments</h2>
+                        <table id="students-table-${teacher_id}">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Full Name</th>
+                                    <th>Department</th>
+                    `;
+
+                    assessmentDataArray.forEach((assessment) => {
+                        const [assessmentName, assessmentValue] = assessment.split(':');
+                        html += `<th style="text-align: center;">${assessmentName}<br><span style="font-weight: normal;">${assessmentValue}%</span></th>`;
+                    });
+
+                    html += `<th>Result</th></tr></thead><tbody>`;
+
+                    if (data.assessment.students) {
+                        data.assessment.students.forEach(student => {
+                            const studentName = student.name || "Unknown Name";
+                            const departmentName = student.department ? student.department.name : "Unknown Department";
+
+                            html += `
+                                <tr>
+                                    <td>${student.id_number}</td>
+                                    <td>${studentName}</td>
+                                    <td>${departmentName}</td>
+                            `;
+
+                            let total = 0;
+                            assessmentDataArray.forEach((assessment, index) => {
+                                const mark = student.assessment_marks[index]?.split('=')[1] || '';
+                    
+                                if (status === 'uneditable') {
+                                    html += `
+                                        <td style="text-align: center;">
+                                            <p class="assessment-text" data-assessment="${assessment}">
+                                                ${mark}
+                                            </p>
+                                        </td>`;
+                                }
+
+                                total += parseInt(mark) || 0;
+                            });
+
+                            html += `<td class="result-cell" style="text-align: center;">${total}</td></tr>`;
+                        });
+                    } else {
+                        html += `<tr><td colspan="${3 + assessmentDataArray.length}">No students found.</td></tr>`;
+                    }
+
+                    html += `</tbody></table>`;
+                    dropdownTable.innerHTML = html;
+
+                    // Assign event listener to save button
+                    const saveButton = document.getElementById(`save-button-${teacher_id}`);
+                    if (saveButton) {
+                        saveButton.addEventListener('click', function() {
+                            saveAssessments(teacher_id, course_code, assigned_class);
+                        });
+                    }
+                    const sendButton = document.getElementById(`send-button-${teacher_id}`);
+                    if (sendButton) {
+                        sendButton.addEventListener('click', function() {
+                            sendAssessments(teacher_id, course_code, assigned_class);
+                        });
+                    }
+
+                } else if (data.error) {
+                    dropdownTable.innerHTML = `<p>${data.error}</p>`;
+                }
+            })
+            .catch(error => console.error('Error fetching assessments:', error));
+    }
+}
+
+function sendAssessments(teacher_id, course_code, assigned_class) {
+    console.log('Sending assessments:', course_code, assigned_class);
+    const rows = document.querySelectorAll(`#students-table-${teacher_id} tbody tr`);  // Add teacher_id to match the correct table
+    let assessmentsData = [];
+    let hasAbove100 = false;
+
+    rows.forEach(row => {
+        const studentId = row.querySelector('td:first-child').textContent;
+        let assessments = [];
+        let total = 0;
+
+        // Find all elements with the class `.assessment-text` inside the row
+        row.querySelectorAll('.assessment-text').forEach(assessmentText => {
+            // Assuming you want to use a dataset attribute to store assessment name and max value
+            const assessmentData = assessmentText.getAttribute('data-assessment').split(':');
+            const assessmentName = assessmentData[0];  // Extract assessment name
+            const assessmentMax = parseInt(assessmentData[1]);  // Extract assessment max value
+            const value = parseInt(assessmentText.textContent) || 0;  // Read the displayed value
+
+            assessments.push(`${assessmentName}:${assessmentMax}=${value}`);
+            total += value;
+        });
+
+        if (total > 100) {
+            hasAbove100 = true;
+        }
+
+        // Push the structured data for this student
+        assessmentsData.push({
+            student_id: studentId,
+            result: total,
+            assessments: assessments.join('; ')  // Join assessments as a single string
+        });
+    });
+
+    if (hasAbove100) {
+        alert('Some assessments have a total above 100. Please correct them.');
+        return;
+    }
+
+    const dataToSend = {
+        assessments: assessmentsData,
+        course_code: course_code,
+        assigned_class: assigned_class
+    };
+
+    console.log('Data to send:', dataToSend);
+
+    fetch('/grade_approval/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(dataToSend)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Assessments saved successfully!');
+            location.reload();
+        } else {
+            alert('Error saving assessments: ' + data.message);
+        }
+    })
+    .catch(error => console.error('Error saving assessments:', error));
+}
+
+
+function saveAssessments(teacher_id, course_code, assigned_class) {
+    fetch('/update_edit_status/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            course_code: course_code,
+            assigned_class: assigned_class,
+            teacher_id: teacher_id,
+            status: 'editable'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Edit request approved successfully!');
+            location.reload(); // Reload the page to reflect changes
+        } else {
+            alert('Error updating status: ' + data.message);
+        }
+    })
+    .catch(error => console.error('Error updating status:', error));
+}
+
+</script>
+
+{% endblock %}

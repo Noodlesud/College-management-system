@@ -1,0 +1,176 @@
+{% extends 'registral/registrar_dashboard.html' %}
+
+{% block content %}
+<style>
+    /* Styling for the table and container */
+    #register-student-form-container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        position: relative; /* To position the dropdown correctly */
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        font-size: 18px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+        color: #333;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* Styling for the headers */
+    h1, h2 {
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    /* Styling for the form input */
+    #register-student-form input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    #register-student-form-container {
+    }
+
+    #search-results {
+        position: absolute;
+        top: 100%; /* Position right below the search input */
+        left: 0;
+        width: 100%;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none; /* Initially hidden */
+    }
+
+    #search-results table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    #search-results th, #search-results td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #search-results tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* Styling for links in search results and table */
+    a {
+        color: #000; /* Set link color to black */
+        text-decoration: none; /* Remove underline from links */
+        font-size: 18px; /* Increase font size for better readability */
+       
+    }
+
+    a:hover {
+        text-decoration: underline; /* Add underline on hover for better visibility */
+    }
+
+</style>
+
+<div id="register-student-form-container">
+    <h1>Register Student</h1>
+    <form id="register-student-form">
+        <label for="student-search">Search for Student:</label>
+        <input type="text" id="student-search" name="student-search" placeholder="Enter student name or ID" required>
+        <div id="search-results">
+            <!-- Search results will be inserted here -->
+        </div>
+    </form>
+</div>
+
+<!-- Student Information Table -->
+<h2>Students</h2>
+<table id="students-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Full Name</th>
+            <th>Department</th>
+        </tr>
+    </thead>
+    <tbody id="students-table-body">
+        {% for student in students %}
+        <tr>
+            <td><a href="{% url 'student_detail' student.id_number %}">{{ student.id_number }}</a></td>
+            <td><a href="{% url 'student_detail' student.id_number %}">{{ student.first_name }} {{ student.last_name }}</a></td>
+            <td>{{ student.department.name }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('student-search');
+        const searchResults = document.getElementById('search-results');
+
+        searchInput.addEventListener('input', function() {
+            const query = searchInput.value;
+
+            if (query.length === 0) {
+                searchResults.style.display = 'none';
+                searchResults.innerHTML = '';
+                return;
+            }
+
+            fetch(`/search_students/?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    let resultsHtml = '<table><thead><tr><th>ID</th><th>Full Name</th></tr></thead><tbody>';
+                    
+                    data.forEach(student => {
+                        resultsHtml += `
+                            <tr>
+                                <td><a href="/student_detail/${student.id_number}">${student.id_number}</a></td>
+                                <td><a href="/student_detail/${student.id_number}">${student.first_name} ${student.last_name}</a></td>
+                            </tr>`;
+                    });
+                    
+                    resultsHtml += '</tbody></table>';
+
+                    searchResults.innerHTML = resultsHtml;
+                    searchResults.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error fetching student data:', error);
+                });
+        });
+
+        document.addEventListener('click', function(event) {
+            if (!searchResults.contains(event.target) && event.target !== searchInput) {
+                searchResults.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

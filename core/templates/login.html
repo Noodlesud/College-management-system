@@ -1,0 +1,95 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <style>
+      body {
+          background: white;
+          font-family: "Helvetica Neue","Helvetica",Arial,"Lucida   Grande",sans-serif;
+        }
+
+        h3 {
+          font-size: 1.5em;
+          font-weight: 100;
+          letter-spacing: 0.3em;
+          text-shadow: 0px 0px 20px #6EC3EC;
+          color: #6EC3EC;
+          display: inline-block;
+        }
+
+        .container {
+          font-size: 16px;
+          top: 30%;
+          left: 41%;
+          position: absolute;
+          color: #FFFFFF;
+          text-align: center;
+        }
+
+        input {
+            border-radius: 25px;
+            border-color: #6EC3EC;
+            padding: 5px;
+            font-family: "Helvetica Neue","Helvetica",Arial,"Lucida   Grande",sans-serif;
+        }
+
+        .content {
+            background-color: black;
+            border-radius: 30px;
+            padding: 25px 35px;
+        }
+
+        .placeholder{
+            color: lightgray;
+        }
+
+        .btn-custom {
+            border-radius: 15px;
+            border-color: #6EC3EC;
+            padding: 6px;
+            color: #6EC3EF;
+            background-color: black;
+        }
+
+        @keyframes load {
+          0% {
+            width: 0%;
+          }
+          50% {
+            width: 100%;
+          }
+          100% {
+            width: 0%;
+            float: right;
+          }
+        }
+
+
+  </style>
+  <title>Login</title>
+</head>
+
+{% block content %}
+<div class="container">
+  <div class="content">
+    <h3>Login</h3>
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required /><br />
+      </div>
+      <br>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required /><br />
+      </div>
+      {% if error_message %}
+      <div class="error-message">{{ error_message }}</div>
+      {% endif %}
+      <br>
+      <button type="submit" class="btn-custom">Login</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

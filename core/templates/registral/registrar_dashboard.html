@@ -1,0 +1,219 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Dashboard</title>
+   <!-- <link rel="stylesheet" href="{% static 'css/form.css' %}">-->
+    <style>
+        
+button[type="submit"],
+button[type="reset"] {
+    width: 48%;
+    padding: 10px;
+    margin: 10px 1%;
+    font-size: 16px;
+    color: #ffffff;
+    background-color: black;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+button[type="reset"] {
+    background-color: lightgrey;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+input[type="date"] {
+    background-color: #fff;
+    color: #333;
+}
+input[type="radio"] {
+    margin-right: 10px;
+}
+.radio-group {
+    display: flex;
+    margin-bottom: 5px;
+}
+.radio-group label {
+    margin-right: 10px;
+    font-weight: normal;
+}
+
+
+        /* Base container */
+        .dob-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .name-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        .city-country-group {
+            display: flex;
+            justify-content: start;
+            gap: 20px;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 220px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background-color: #2c3e50;
+            font-size: 18px;
+            color: #ecf0f1;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 50px;
+        }
+
+        .sidebar ul li {
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: normal;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .sidebar ul li a:hover {
+            background-color: #34495e;
+            color: #ecf0f1;
+            border-radius: 4px;
+        }
+
+        /* Header bar styling */
+        .header-bar {
+            background-color: #ffffff; /* White background */
+            color: #2c3e50;
+            height: 90px;
+            width: calc(100% - 220px); /* Remaining width after the sidebar */
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Align items to the left and right */
+            padding: 0 20px; /* Add padding for spacing */
+            position: fixed;
+            top: 0;
+            left: 220px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Elevated effect */
+            z-index: 10;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info-icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .user-info-text {
+            font-size: 13px;
+            text-align: right; /* Align text to the right */
+        }
+
+        /* Main content styling */
+        .main-content {
+            margin-top: 120px; /* Leave space for the header bar */
+            margin-left: 220px; /* Leave space for the sidebar */
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #ffffff;
+            color: #333;
+            font-size: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+       
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">Registrar Page</div>
+        <ul>              
+            <li><a href="{% url 'register_new_student' %}">Acadamic Year Registration</a></li>
+            <li><a href="{% url 'add_student_view' %}">Add Student</a></li>
+            <li><a href="{% url 'course_registration' %}">Course Registration</a></li>
+
+        </ul>
+    </nav>
+
+    <!-- Header Bar -->
+    <div class="header-bar">
+        
+        <div class="user-info">
+            <span class="user-info-icon">👤</span>
+            <div class="user-info-text">
+                <strong>{{ request.user.username }}</strong><br>
+                {{ request.user.email }}<br>
+                Role: {{ request.user.role }}<br>
+                <a href="{% url 'login' %}" style="  color: #79282e;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: normal;
+            transition: background-color 0.3s, color 0.3s;
+       ">Log-out</a></li>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        {% block content %}
+        <!-- Content from child templates will be rendered here -->
+        {% endblock %}
+    </div>
+</body>
+</html>

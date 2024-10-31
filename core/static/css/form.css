@@ -1,0 +1,243 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+#main-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+#registration-container{
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    width: 500px;
+    min-height:560px;
+    margin-top: 20px;
+ ;
+}
+
+#course-container {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    width: 600px;
+    margin-top: 20px;
+    margin-left: 40px;
+}
+#course-container {
+    display: none; /* Initially hidden */
+}
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0px;
+}
+.nav-buttons a {
+    text-decoration: none;
+    color: black;
+    font-size: 14px;
+    padding: 10px 20px;
+    border: 1px solid black;
+    border-radius: 4px;
+    transition: background-color 0.3s, color 0.3s;
+    cursor: pointer;
+}
+.nav-buttons a.active {
+    background-color: black;
+    color: white;
+}
+.divider {
+    width: 2px;
+    height: 20px;
+    background-color: black;
+    margin: 0 10px;
+}
+
+h1 {
+    text-align: left;
+    color: #333333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+form {
+    width: 100%;
+    display: none;
+}
+form.active {
+    display: block;
+}
+label {
+    display: block;
+    color: #555555;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+input[type="date"] {
+    background-color: #fff;
+    color: #333;
+}
+input[type="radio"] {
+    margin-right: 10px;
+}
+.radio-group {
+    display: flex;
+    margin-bottom: 5px;
+}
+.radio-group label {
+    margin-right: 10px;
+    font-weight: normal;
+}
+
+.more {
+    text-align: center;
+    margin-top: 10px;
+}
+
+#more-info-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #000000;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 0px;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0 auto;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#more-info-btn:hover {
+    background-color: #ffffff;
+}
+
+button[type="submit"],
+button[type="reset"] {
+    width: 48%;
+    padding: 10px;
+    margin: 10px 1%;
+    font-size: 16px;
+    color: #ffffff;
+    background-color: black;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+button[type="reset"] {
+    background-color: lightgrey;
+}
+button:hover {
+    opacity: 0.9;
+}
+.dob-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+.name-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+.city-country-group {
+    display: flex;
+    justify-content: start;
+    gap: 20px;
+}
+.search-results {
+    margin-top: 20px;
+}
+.search-results p {
+    margin: 0;
+    font-weight: bold;
+}
+.course-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.course-table th, .course-table td {
+    padding: 10px;
+    text-align: left;
+}
+
+.course-table thead {
+    background-color: #f4f4f4;
+}
+
+.course-table tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+.active {
+    display: block;
+}
+
+.hidden {
+    display: none;
+}
+/* Ensure the container uses flexbox for centering */
+.nav-bu-container {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 100%; /* Ensure container has a defined height */
+}
+
+.nav-bu {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 14px;
+    padding: 10px 20px;
+    border: 1px solid black;
+    text-align: center;
+    border-radius: 4px;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: #000000;
+    cursor: pointer;
+    display: inline-block;
+    margin: 0;
+}
+
+.nav-bu a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+.nav-bu:hover {
+    background-color: #f0f0f0;
+    color: #000000;
+}
+
+.nav-bu:active {
+    background-color: #e0e0e0;
+}

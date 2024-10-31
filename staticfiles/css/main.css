@@ -1,0 +1,39 @@
+.container{
+    margin: 0;
+    padding: 0;
+}
+.header{
+    background-color: #333;
+    color:#fff;
+    padding: 20px;
+    text-align: center;
+}
+nav ul{
+    list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+}
+nav ul li {
+    margin: 0 10px;
+}
+nav ul li a {
+    color: #333;
+    text-decoration: none;
+}
+main {
+    padding: 20px;
+}
+.login-button {
+    display: block;
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+.login-button:hover {
+    background-color: #0056b3;
+}

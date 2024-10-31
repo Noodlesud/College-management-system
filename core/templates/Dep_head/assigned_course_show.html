@@ -1,0 +1,13 @@
+{% for course in courses %}
+<tr>
+    <td>{{ course.code }}</td>
+    <td>{{ course.name }}</td>
+    <td>{{ course.year }}</td>
+    <td>{{ course.semester }}</td>
+    <td>{{ course.credits }}</td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="5">No courses available.</td>
+</tr>
+{% endfor %}

@@ -1,0 +1,143 @@
+<td colspan="5">
+    <div id="dropdown-table-{{ teacher.teacher_id }}" class="dropdown-table-container">
+        <!-- Content will be loaded here -->
+    </div>
+</td>
+
+<script>
+function toggleDropdown(teacher_id, course_code, assigned_class) {
+const dropdownRow = document.getElementById(`dropdown-row-${teacher_id}`);
+const dropdownTable = document.getElementById(`dropdown-table-${teacher_id}`);
+
+if (dropdownRow.style.display === "table-row") {
+    dropdownRow.style.display = "none";
+} else {
+    dropdownRow.style.display = "table-row";
+
+    fetch(`/get_assessments_approval/?course_code=${course_code}&assigned_class=${assigned_class}&teacher_id=${teacher_id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.assessment) {
+                const assessmentDataArray = data.assessment.assessment_data;
+                const status = data.assessment.status;
+                const edit_approval_status = data.assessment.edit_approval_status;
+
+                let buttonHTML = '';
+
+                if (edit_approval_status === 'edit_request') {
+                    buttonHTML = `
+                        <button id="save-button" style="padding: 10px 20px; margin-right: 10px;">Approve Edit</button>
+                        <button id="send-button" style="padding: 10px 20px;">Approve Grade</button>
+                    `;
+                } else {
+                    buttonHTML = `
+                        <button id="send-button" style="padding: 10px 20px;">Approve Grade</button>
+                    `;
+                }
+
+                let html = `
+                    <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                        ${buttonHTML}
+                    </div>
+                    <h2>Assessments</h2>
+                    <table id="students-table-${teacher_id}">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Department</th>
+                `;
+
+                assessmentDataArray.forEach((assessment) => {
+                    const [assessmentName, assessmentValue] = assessment.split(':');
+                    html += `<th style="text-align: center;">${assessmentName}<br><span style="font-weight: normal;">${assessmentValue}%</span></th>`;
+                });
+
+                html += `<th>Result</th></tr></thead><tbody>`;
+
+                if (data.assessment.students) {
+                    data.assessment.students.forEach(student => {
+                        const studentName = student.name || "Unknown Name";
+                        const departmentName = student.department ? student.department.name : "Unknown Department";
+
+                        html += `
+                            <tr>
+                                <td>${student.id_number}</td>
+                                <td>${studentName}</td>
+                                <td>${departmentName}</td>
+                        `;
+
+                        let total = 0;
+                        assessmentDataArray.forEach((assessment, index) => {
+                            const mark = student.assessment_marks[index]?.split('=')[1] || '';
+                            let markHTML = '';
+
+                            if (status === 'uneditable') {
+                                markHTML = `
+                                    <td style="text-align: center;">
+                                        <p style="width: 30%; padding: 5px; border-radius: 4px; border: 1px solid #ccc; display: inline-block;" class="assessment-text">
+                                            ${mark}
+                                        </p>
+                                    </td>`;
+                            }
+                            html += markHTML;
+
+                            total += parseInt(mark) || 0;
+                        });
+
+                        html += `<td class="result-cell" style="text-align: center;">${total}</td></tr>`;
+                    });
+                } else {
+                    html += `<tr><td colspan="${3 + assessmentDataArray.length}">No students found.</td></tr>`;
+                }
+
+                html += `</tbody></table>`;
+                dropdownTable.innerHTML = html;
+
+                const saveButton = document.getElementById(`save-button`);
+                if (saveButton) {
+                    saveButton.addEventListener('click', function() {
+                        saveAssessments(teacher_id, course_code, assigned_class);
+                    });
+                }
+                const sendButton = document.getElementById(`send-button-${teacher_id}`);
+                if (sendButton) {
+                    sendButton.addEventListener('click', function() {
+                        saveAssessments(teacher_id, course_code, assigned_class);
+                    });
+                }
+            } else if (data.error) {
+                dropdownTable.innerHTML = `<p>${data.error}</p>`;
+            }
+        })
+        .catch(error => console.error('Error fetching assessments:', error));
+}
+}
+
+
+function saveAssessments(teacher_id, course_code, assigned_class) {
+fetch('/update_edit_status/', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+        course_code: course_code,
+        assigned_class: assigned_class,
+        teacher_id: teacher_id,
+        status: 'editable'
+    })
+})
+.then(response => response.json())
+.then(data => {
+    if (data.status === 'success') {
+        location.reload();
+        alert('Edit request Approved successfully!');
+    } else {
+        alert('Error updating status: ' + data.message);
+    }
+})
+.catch(error => console.error('Error updating status:', error));
+}
+</script>

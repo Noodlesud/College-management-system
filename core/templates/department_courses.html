@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Department Courses</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Courses by Department</h1>
+    
+    {% for department, years_dict in department_courses.items %}
+        <h2>{{ department.name }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Semester</th>
+                    {% for year in years %}
+                        <th>Year {{ year.year }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for semester in semesters %}
+                    <tr>
+                        <td>Semester {{ semester.name }}</td>
+                        {% for year in years %}
+                            <td>
+                                <ul>
+                                    {% for course in department_courses[department][year].get(semester, []) %}
+                                        <li>{{ course.name }}</li>
+                                    {% empty %}
+                                        <li>No Courses</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+</body>
+</html>

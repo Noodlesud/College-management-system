@@ -1,0 +1,235 @@
+{% extends 'teacher/teacher_dashboard.html' %}
+
+{% block content %}
+<!-- Add this section to display messages -->
+{% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<style>
+    /* Styling for the form container */
+    /* ... (existing styles) ... */
+    
+    /* Alert messages */
+    .messages {
+        margin-top: 20px;
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 4px;
+        color: white;
+        margin-bottom: 20px;
+    }
+
+    .alert-success {
+        background-color: #4CAF50; /* Green */
+    }
+
+    .alert-error {
+        background-color: #f44336; /* Red */
+    }
+    #assign-course-form-container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+  }
+
+  /* Flexbox for inline elements */
+  .form-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+  }
+
+  /* Dropdown and form input styles */
+  .form-row select, .form-row input[type="number"] {
+      width: 80%;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+  }
+
+  #formset-container {
+      margin-top: 20px;
+  }
+
+  /* Table styling */
+  #formset-container table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Table shadow */
+      background-color: white;
+  }
+
+  #formset-container th, #formset-container td {
+      padding: 15px; /* Padding inside cells */
+      text-align: left;
+      border-bottom: 1px solid #ddd; /* Border between rows */
+      font-size: 18px; /* Font size inside the table */
+  }
+
+  #formset-container th {
+      background-color: #f2f2f2; /* Light background for headers */
+      color: #333; /* Dark text color for header */
+      font-weight: bold;
+      text-transform: uppercase; /* Uppercase text for header */
+  }
+
+  #formset-container tr:hover {
+      background-color: #f9f9f9; /* Row hover effect */
+  }
+
+  /* Styling for the headers */
+  h1, h2 {
+      color: #333;
+      margin-bottom: 10px;
+  }
+
+  .error-message {
+      color: red;
+      font-size: 16px;
+      margin-top: 10px;
+  }
+
+</style>
+
+<h2>Add Multiple Assessments</h2>
+
+<form id="assign-course-form" method="post" action="{% url 'add_assessments' %}">
+    {% csrf_token %}
+
+    <!-- Course, Assigned Class, and Number of Assessments in a row -->
+    <div class="form-row">
+        <!-- Course dropdown -->
+        <div>
+            <label for="course">Select Course:</label>
+            <select id="course" name="course">
+                <option value="">-- Select Course --</option>
+                {% for course in courses %}
+                <option value="{{ course.code }}">{{ course.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Assigned class dropdown -->
+        <div>
+            <label for="assigned_class">Assigned Class:</label>
+            <select id="assigned_class" name="assigned_class">
+                <option value="">-- Select Assigned Class --</option>
+            </select>
+        </div>
+
+        <!-- Number of assessments -->
+        <div>
+            <label for="numberofass">Number of Assessments:</label>
+            <input type="number" id="numberofass" name="numberofass" min="1" value="{{ number_of_assessments }}" />
+        </div>
+    </div>
+
+    <!-- Formset container -->
+    <table id="formset-container">
+       
+        <tbody id="formset-body">
+            <!-- Dynamic rows will be inserted here -->
+        </tbody>
+    </table>
+
+    <div id="error-message" class="error-message" style="display: none;"></div>
+
+    <button type="submit">Save Assessments</button>
+</form>
+
+<script>
+    // Function to update assessments form dynamically
+    function updateForms() {
+        const numberOfAssessments = parseInt(document.getElementById("numberofass").value);
+        const formBody = document.getElementById("formset-body");
+        formBody.innerHTML = ""; // Clear existing rows
+
+        // Create new forms
+        for (let i = 0; i < numberOfAssessments; i++) {
+            const formHtml = `
+             <thead>
+            <tr>
+                <th>Assessment Name</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+                <tr>
+                    <td><strong name="form-${i}-name">Assessment ${i + 1}</strong></td>
+                    <td><input type="number" name="form-${i}-value" /></td>
+                </tr>
+            `;
+            formBody.insertAdjacentHTML("beforeend", formHtml);
+        }
+    }
+
+    // AJAX request to get assigned class based on selected course
+    document.getElementById("course").addEventListener("change", function () {
+        const courseCode = this.value;
+
+        if (courseCode) {
+            fetch(`/get-assigned-class/?course_code=` + courseCode)
+                .then(response => response.json())
+                .then(data => {
+                    const assignedClassSelect = document.getElementById("assigned_class");
+                    assignedClassSelect.innerHTML = '<option value="">-- Select Assigned Class --</option>';
+
+                    // Populate assigned class dropdown with received data
+                    data.assigned_classes.forEach(assignedClass => {
+                        const option = document.createElement("option");
+                        option.value = assignedClass;
+                        option.textContent = assignedClass;
+                        assignedClassSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching assigned classes:', error));
+        } else {
+            document.getElementById("assigned_class").innerHTML = '<option value="">-- Select Assigned Class --</option>';
+        }
+    });
+
+    // Validate the form before submission
+    document.getElementById("assign-course-form").addEventListener("submit", function (event) {
+        const inputs = document.querySelectorAll('#formset-body input[type="number"]');
+        let totalValue = 0;
+
+        inputs.forEach(input => {
+            const value = parseFloat(input.value);
+            if (!isNaN(value)) {
+                totalValue += value;
+            }
+        });
+
+        if (totalValue !== 100) {
+            event.preventDefault(); // Prevent form submission
+            document.getElementById("error-message").textContent = "The total value of assessments must be equal to 100.";
+            document.getElementById("error-message").style.display = "block";
+        } else {
+            // Format values and prepare for submission
+            const formattedValues = Array.from(inputs).map((input, index) => {
+                return `Assessment-${index + 1}:${input.value}`;
+            }).join('; ');
+
+            document.getElementById("assign-course-form").insertAdjacentHTML('beforeend', `<input type="hidden" name="formatted_assessments" value="${formattedValues}" />`);
+            document.getElementById("error-message").style.display = "none";
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("numberofass").addEventListener("input", updateForms);
+        updateForms(); // Initial call to populate forms
+    });
+</script>
+
+{% endblock %}

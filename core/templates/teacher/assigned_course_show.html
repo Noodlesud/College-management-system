@@ -1,0 +1,453 @@
+{% extends 'teacher/teacher_dashboard.html' %}
+
+{% block content %}
+<style>
+    #edit-request-button {
+        background-color: white;
+        color: black;
+        border: 2px solid #333;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    #save-button {
+        background-color: #4CAF50; /* Green */
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+    #send-button {
+        background-color: white;
+        color: black;
+        border: 2px solid #333;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    /* Hover effects */
+    #edit-request-button:hover {
+        background-color: #2c3e50; /* Blue */
+        color: white; /* Change text color to white on hover */
+    }
+
+    #send-button:hover {
+        background-color: #2c3e50; /* Blue */
+        color: white; /* Change text color to white on hover */
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        font-size: 18px;
+    }
+
+    th {
+        background-color: #f2f2f2;
+        color: #333;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    tr:hover {
+        background-color: #f9f9f9;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+  
+    /* Dropdown and form input styles */
+    .form-row select, .form-row input[type="number"] {
+        width: 80%;
+        padding: 8px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+  
+    #formset-container {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="student-detail-container">
+    <div class="form-row">
+        <!-- Course dropdown -->
+        <div>
+            <label for="course">Select Course:</label>
+            <select id="course" name="course">
+                <option value="">-- Select Course --</option>
+                {% for course in courses %}
+                <option value="{{ course.code }}">{{ course.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Assigned class dropdown -->
+        <div>
+            <label for="assigned_class">Assigned Class:</label>
+            <select id="assigned_class" name="assigned_class">
+                <option value="">-- Select Assigned Class --</option>
+            </select>
+        </div>
+    </div>
+   
+    <div id="assessment-results">
+        <!-- Assessments will be displayed here dynamically -->
+    </div>
+
+    <!-- Placeholder for displaying the data being sent -->
+</div>
+
+<script>
+    document.getElementById('course').addEventListener('change', fetchAssessments);
+    document.getElementById('assigned_class').addEventListener('change', fetchAssessments);
+
+    document.getElementById("course").addEventListener("change", function () {
+        const courseCode = this.value;
+
+        if (courseCode) {
+            fetch(`/get-assigned-class/?course_code=` + courseCode)
+                .then(response => response.json())
+                .then(data => {
+                    const assignedClassSelect = document.getElementById("assigned_class");
+                    assignedClassSelect.innerHTML = '<option value="">-- Select Assigned Class --</option>';
+
+                    data.assigned_classes.forEach(assignedClass => {
+                        const option = document.createElement("option");
+                        option.value = assignedClass;
+                        option.textContent = assignedClass;
+                        assignedClassSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching assigned classes:', error));
+        } else {
+            document.getElementById("assigned_class").innerHTML = '<option value="">-- Select Assigned Class --</option>';
+        }
+    });
+
+    // Function to handle input changes and update the result cell
+    function updateResult(row) {
+        let total = 0;
+        let isAbove100 = false;
+
+        row.querySelectorAll('.assessment-input').forEach(input => {
+            const value = parseFloat(input.value) || 0; // Get the input value or default to 0
+            total += value;
+        });
+
+        const resultCell = row.querySelector('.result-cell');
+        if (total > 100) {
+            resultCell.textContent = 'Above 100';
+            resultCell.style.color = 'red'; // Make it red to indicate a problem
+            isAbove100 = true;
+        } else {
+            resultCell.textContent = total; // Set the total value in the result cell
+            resultCell.style.color = ''; // Reset color if under 100
+        }
+
+        return isAbove100;
+    }
+
+    // Save assessments function
+// Save assessments function
+function saveAssessments() {
+    const courseCode = document.getElementById('course').value;
+    const assignedClass = document.getElementById('assigned_class').value;
+
+    if (courseCode && assignedClass) {
+        const rows = document.querySelectorAll('#students-table tbody tr');
+        let assessmentsData = [];
+        let hasAbove100 = false;
+
+        // Iterate over each student row
+        rows.forEach(row => {
+            const studentId = row.querySelector('td:first-child').textContent;
+            let assessments = [];
+            let total = 0;
+
+            row.querySelectorAll('.assessment-input').forEach(input => {
+                const assessmentName = input.dataset.assessment.split(':')[0];  // Extract assessment name
+                const assessmentMax = parseInt(input.dataset.assessment.split(':')[1]);  // Extract assessment max value
+                const value = parseInt(input.value) || 0; // Get the entered value, default to 0 if empty
+                
+                // Append assessment in the required format
+                assessments.push(`${assessmentName}:${assessmentMax}=${value}`);
+                total += value; // Sum the total assessments
+            });
+
+            // Check if the total of assessments exceeds 100
+            if (total > 100) {
+                hasAbove100 = true;
+            }
+
+            // Structure data for each student
+            assessmentsData.push({
+                student_id: studentId,
+                result: total,
+                assessments: assessments.join('; ')  // Join assessments as a single string
+            });
+        });
+
+        // Prevent submission if any total is above 100
+        if (hasAbove100) {
+            alert('Some assessments have a total above 100. Please correct them.');
+            return;
+        }
+
+        // Prepare the data to be sent
+        const dataToSend = {
+            assessments: assessmentsData,
+            course_code: courseCode,
+            assigned_class: assignedClass
+        };
+
+        // Display the data being sent
+
+        // Send assessmentsData via AJAX for processing
+        fetch('/save-assessments/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(dataToSend)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Alert the saved data from the response
+                location.reload();
+                alert('Assessments saved successfully!');
+            } else {
+                alert('Error saving assessments: ' + data.message);
+            }
+        })
+        .catch(error => console.error('Error saving assessments:', error));
+    }
+}
+
+
+    // Function to add input listeners to assessment fields
+    function addInputListeners() {
+        document.querySelectorAll('.assessment-input').forEach(input => {
+            input.addEventListener('input', function () {
+                const row = input.closest('tr');
+                updateResult(row); // Update result whenever an input changes
+            });
+        });
+    }
+
+    // Add the event listeners after fetching the assessments
+    function fetchAssessments() {
+        const courseCode = document.getElementById('course').value;
+        const assignedClass = document.getElementById('assigned_class').value;
+    
+        if (courseCode && assignedClass) {
+            fetch(`/get-assessments/?course_code=${courseCode}&assigned_class=${assignedClass}`)
+                .then(response => response.json())
+                .then(data => {
+                    const assessmentResultsDiv = document.getElementById('assessment-results');
+    
+                    if (data.assessment) {
+                        const assessmentDataArray = data.assessment.assessment_data;
+                        const status = data.assessment.status;
+    
+                        // Set button HTML based on the status
+                        let buttonHTML = '';
+                        if (status === 'editable') {
+                            buttonHTML = `
+                                <button id="save-button" style="padding: 10px 20px; margin-right: 10px;">Save</button>
+                                <button id="send-button" style="padding: 10px 20px;">Send</button>
+                            `;
+                        } else if (status === 'uneditable') {
+                            buttonHTML = `
+                                <button id="edit-request-button" style="padding: 10px 20px; margin-right: 10px;">Edit Request</button>
+                            `;
+                        }
+    
+                        let html = `
+                            <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                                ${buttonHTML}
+                            </div>
+                            <h2>Assessments</h2>
+                            <table id="students-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Full Name</th>
+                                        <th>Department</th>
+                        `;
+    
+                        assessmentDataArray.forEach((assessment) => {
+                            const [assessmentName, assessmentValue] = assessment.split(':');
+                            html += `<th style="text-align: center;">${assessmentName}<br><span style="font-weight: normal;">${assessmentValue}%</span></th>`;
+                        });
+    
+                        html += `<th>Result</th></tr></thead><tbody>`;
+    
+                        if (data.assessment.students) {
+                            data.assessment.students.forEach(student => {
+                                const studentName = student.name || "Unknown Name";
+                                const departmentName = student.department ? student.department.name : "Unknown Department";
+    
+                                html += `
+                                    <tr>
+                                        <td>${student.id_number}</td>
+                                        <td>${studentName}</td>
+                                        <td>${departmentName}</td>
+                                `;
+    
+                                let total = 0;
+                                assessmentDataArray.forEach((assessment, index) => {
+                                    const mark = student.assessment_marks[index]?.split('=')[1] || '';
+                                    let markHTML = '';
+    
+                                    if (status === 'editable') {
+                                        markHTML = `
+                                            <td style="text-align: center;">
+                                                <input type="number" 
+                                                    style="width: 30%; padding: 5px; border-radius: 4px; border: 1px solid #ccc;" 
+                                                    placeholder="Mark" 
+                                                    class="assessment-input" 
+                                                    data-assessment="${assessment}" 
+                                                    data-student="${student.id_number}" 
+                                                    value="${mark}"  
+                                                />
+                                            </td>`;
+                                    } else if (status === 'uneditable') {
+                                        markHTML = `
+                                            <td style="text-align: center;">
+                                                <p 
+                                                    style="width: 30%; padding: 5px; border-radius: 4px; border: 1px solid #ccc; display: inline-block;"
+                                                    class="assessment-text">
+                                                    ${mark}  
+                                                </p>
+                                            </td>`;
+                                    }
+                                    html += markHTML;
+    
+                                    total += parseInt(mark) || 0;
+                                });
+    
+                                html += `<td class="result-cell" style="text-align: center;">${total}</td></tr>`;
+                            });
+                        } else {
+                            html += `<tr><td colspan="${3 + assessmentDataArray.length}">No students found.</td></tr>`;
+                        }
+    
+                        html += `</tbody></table>`;
+                        assessmentResultsDiv.innerHTML = html;
+    
+                        // Add input event listeners after generating the table
+                        addInputListeners();
+    
+                        const saveButton = document.getElementById('save-button');
+                        if (saveButton) saveButton.addEventListener('click', saveAssessments);
+    
+                        const sendButton = document.getElementById('send-button');
+                        if (sendButton) {
+                            sendButton.addEventListener('click', function() {
+                                sendAssessments();
+                                saveAssessments();
+                            });
+                        }
+                        
+                        const editRequestButton = document.getElementById('edit-request-button');
+                        if (editRequestButton) editRequestButton.addEventListener('click', editRequest);
+    
+                    } else if (data.error) {
+                        assessmentResultsDiv.innerHTML = `<p>${data.error}</p>`;
+                    }
+                })
+                .catch(error => console.error('Error fetching assessments:', error));
+        }
+    }
+    
+    function sendAssessments() {
+        const courseCode = document.getElementById('course').value;
+        const assignedClass = document.getElementById('assigned_class').value;
+    
+        if (courseCode && assignedClass) {
+            fetch('/update-assignment-status/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    course_code: courseCode,
+                    assigned_class: assignedClass,
+                    status: 'uneditable'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                    alert('Assessments sent successfully!');
+                } else {
+                    alert('Error updating status: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error updating status:', error));
+        } else {
+            alert('Please select both course and assigned class before sending.');
+        }
+    }
+    
+    function editRequest() {
+        const courseCode = document.getElementById('course').value;
+        const assignedClass = document.getElementById('assigned_class').value;
+    
+        console.log('Edit Request called');
+        console.log('Course Code:', courseCode);
+        console.log('Assigned Class:', assignedClass);
+    
+        if (courseCode && assignedClass) {
+            fetch('/request_status/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    course_code: courseCode,
+                    assigned_class: assignedClass,
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response Data:', data);
+                if (data.status === 'success') {
+                    location.reload();
+                    alert('Edit request sent successfully!');
+                } else {
+                    alert('Error updating status: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
+                alert('An error occurred. Please check the console for details.');
+            });
+        } else {
+            alert('Please select both course and assigned class before sending.');
+        }
+    }
+    </script>
+{% endblock %}
